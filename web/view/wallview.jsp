@@ -68,17 +68,22 @@
         </td>
 
         <td width="14%" valign="center" align="middle">
-            
-            <form action="delete.do" method="post">
-                <input type="hidden" name="index" value="<%= i %>">
-                <input type="submit" name="delete" value="delete">
-            </form>
             <% if (msg.getOwner().equals(currentUser)) { %>
+                <form action="delete.do" method="post">
+                    <input type="hidden" name="index" value="<%= i %>">
+                    <input type="submit" name="delete" value="delete">
+                </form>
+            
                 <form action="edit.do" method="post">
                     <input type="hidden" name="index" value="<%= i %>">
                     <input type="submit" name="edit" value="modify">
                 </form>
             <% } %>
+            
+            <form action="comment.do" method="post">
+                    <input type="hidden" name="index" value="<%= i %>">
+                    <input type="submit" name="comments" value="<%= msg.comments_size()%> comments">
+            </form>
         </td>
 
         </font> 
@@ -110,6 +115,7 @@
 <HR WIDTH="100%" SIZE="2">
 
 <form action="refresh.do" method=POST>
-    <input type=submit value="Refresh wall view message" name="refresh_button"></form>
+    <input type=submit value="Refresh wall view message" name="refresh_button">
+    <input type="hidden" name="webpage" value="wallview"></form>
 
 </body>

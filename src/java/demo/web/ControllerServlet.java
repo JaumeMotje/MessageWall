@@ -49,7 +49,6 @@ public class ControllerServlet extends HttpServlet {
             
 
             if (userAccess != null) {
-                 System.out.println("Hola2 "+userAccess);
                 // Si la autenticación es exitosa, guarda UserAccess en la sesión
                 session.setAttribute("useraccess", userAccess);
                 
@@ -70,7 +69,6 @@ public class ControllerServlet extends HttpServlet {
             
            
                 userAccess.put(message);
-                System.out.print(message);
                 return "/view/wallview.jsp";
             
             
@@ -78,8 +76,18 @@ public class ControllerServlet extends HttpServlet {
             
       
         } else if (serv_path.equals("/refresh.do")) {
+           String web = request.getParameter("webpage");
+           if(web.contentEquals("wallview")){
+               return "/view/wallview.jsp";
+           }else if(web.contentEquals("editview")){
+               return "/view/editMessage.jsp";
+           }else if(web.contentEquals("commentsview")){
+               return "/view/commentsview.jsp";
+           }
+           return "/view/wallview.jsp"; 
+        } else if (serv_path.equals("/back.do")) {
+           return "/view/wallview.jsp";
            
-            return "/view/wallview.jsp";
         } else if (serv_path.equals("/logout.do")) {
             session.invalidate();
             return "/goodbye.html";
@@ -102,7 +110,6 @@ public class ControllerServlet extends HttpServlet {
                 Message messageToEdit = userAccess.getAllMessages().get(index);
                 request.setAttribute("message", messageToEdit);
                 request.setAttribute("index", index);
-                System.out.println("Edit");
                  return "/view/editMessage.jsp";
             }
             return  "/view/wallview.jsp";
@@ -117,6 +124,33 @@ public class ControllerServlet extends HttpServlet {
                
                     }
                     return  "/view/wallview.jsp";
+        }
+        else if (serv_path.equals("/comment.do")) {
+            
+            UserAccess userAccess = (UserAccess) session.getAttribute("useraccess");
+            int index = Integer.parseInt(request.getParameter("index"));
+            if (userAccess != null) {
+                Message messageTocomment = userAccess.getAllMessages().get(index);
+                session.setAttribute("messageTocomment", messageTocomment);
+                
+                request.setAttribute("index", index);
+                 return "/view/commentsview.jsp";
+            }
+            return  "/view/wallview.jsp";
+         } else if (serv_path.equals("/addcomment.do")) {
+            
+            String comment = request.getParameter("comm");
+       
+            int index = Integer.parseInt(request.getParameter("index"));
+            UserAccess userAccess = (UserAccess) session.getAttribute("useraccess");
+            System.out.println("Addcomment");
+            request.setAttribute("index", index);
+            if (userAccess != null && comment != null && !comment.trim().isEmpty()) {
+                userAccess.getAllMessages().get(index).put(userAccess.getUser(),comment);
+            }
+            
+            return "/view/commentsview.jsp";
+            
 
         } else {
             return  "/view/wallview.jsp";
