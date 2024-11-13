@@ -8,5 +8,4 @@ public interface MessageWall {
     Message getLast();
     int getNumber();
     List<Message> getAllMessages();
-    boolean edit(int index, String newContent);
 }

@@ -3,50 +3,56 @@ package demo.impl;
 import demo.spec.Message;
 import demo.spec.MessageWall;
 import demo.spec.UserAccess;
-
 import java.util.List;
 
 public class UserAccess_Impl implements UserAccess {
-    private final String user; // The username associated with this access
-    private final MessageWall messageWall; // The MessageWall instance to interact with
 
-    public UserAccess_Impl(String user, MessageWall messageWall) {
-        this.user = user;
-        this.messageWall = messageWall;
-    }
+  private String user;
+  private MessageWall messageWall;
 
-    @Override
-    public String getUser() {
-        return user;
-    }
+  public UserAccess_Impl(MessageWall mw, String usr) {
+    messageWall = mw;
+    user = usr;
+  }
 
-    @Override
-    public Message getLast() {
-        // Returns the last message posted by any user on the wall
-        return messageWall.getLast();
-    }
+  @Override
+  public String getUser() {
+        return user; 
+  }
 
-    @Override
-    public int getNumber() {
-        // Returns the total number of messages on the wall
-        return messageWall.getNumber();
-    }
+  @Override
+  public Message getLast() {
+    List<Message> messages = messageWall.getAllMessages();
+    if (!messages.isEmpty()) {
+            return messages.get(messages.size() - 1); 
+        }
+        return null; 
+  }
 
-    @Override
-    public void put(String msg) {
-        // Posts a new message to the wall under the current user's name
-        messageWall.put(user, msg);
-    }
+  @Override
+  public int getNumber() {
+    return messageWall.getNumber();
+  }
 
-    @Override
-    public boolean delete(int index) {
-        // Attempts to delete the message at the specified index if it belongs to the user
-        return messageWall.delete(user, index);
-    }
+  @Override
+  public void put(String msg) {
+    System.out.print(msg);
+    messageWall.put(user,msg);
+  }
 
-    @Override
-    public List<Message> getAllMessages() {
-        // Returns a list of all messages on the wall
-        return messageWall.getAllMessages();
-    }
+  @Override
+  public boolean delete(int index) {
+    return messageWall.delete(user, index);
+  }
+
+  @Override
+  public List<Message> getAllMessages() {
+      return messageWall.getAllMessages();
+  }
+  public boolean edit(int index,String new_content){
+      return messageWall.edit(index,new_content);
+  }
+
 }
+
+

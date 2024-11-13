@@ -20,9 +20,5 @@ public class Message_Impl implements Message, java.io.Serializable {
   public String getOwner() {
     return user;
   }
-  
-  public void setContent(String new_content){
-      message = new_content;
-  }
 
 }

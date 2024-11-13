@@ -9,5 +9,4 @@ public interface UserAccess {
     void put(String msg);
     boolean delete(int index);
     List<Message> getAllMessages();
-    boolean edit(int index, String newContent);
 }

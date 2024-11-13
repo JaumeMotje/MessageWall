@@ -28,7 +28,6 @@ public class WallViewServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         UserAccess conn = (UserAccess)session.getAttribute("useraccess");
-        System.out.print(conn.getUser());
         Message msg = conn.getLast();
 
         response.setContentType("text/html");

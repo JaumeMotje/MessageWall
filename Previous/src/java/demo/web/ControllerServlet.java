@@ -1,9 +1,9 @@
 package demo.web;
 
-import demo.spec.Message;
 import demo.spec.MessageWall;
 import demo.spec.RemoteLogin;
 import demo.spec.UserAccess;
+
 import java.io.IOException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -26,7 +26,6 @@ public class ControllerServlet extends HttpServlet {
 
     protected void process(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-
         String view = perform_action(request);
         forwardRequest(request, response, view);
     }
@@ -37,99 +36,81 @@ public class ControllerServlet extends HttpServlet {
         String serv_path = request.getServletPath();
         HttpSession session = request.getSession();
 
+        // Get RemoteLogin from the servlet context
+        RemoteLogin remoteLogin = getRemoteLogin();
+
+        // Handle login
         if (serv_path.equals("/login.do")) {
-           String username = request.getParameter("user");
-            String password = request.getParameter("password");
-            
-            
-            RemoteLogin remoteLogin = getRemoteLogin();
-            UserAccess userAccess = remoteLogin.connect(username, password);
-            
-          
-            
-
-            if (userAccess != null) {
-                 System.out.println("Hola2 "+userAccess);
-                // Si la autenticación es exitosa, guarda UserAccess en la sesión
-                session.setAttribute("useraccess", userAccess);
-                
-                return "/view/wallview.jsp";
-            } 
-                
-                
-                return "/login.html";
-           
-
-        } else if (serv_path.equals("/put.do")) {
-            
-            
-            String message = request.getParameter("msg");
-            
-            UserAccess userAccess = (UserAccess) session.getAttribute("useraccess");
             String username = request.getParameter("user");
-            
-           
-                userAccess.put(message);
-                System.out.print(message);
-                return "/view/wallview.jsp";
-            
-            
-            
-            
-      
-        } else if (serv_path.equals("/refresh.do")) {
-           
-            return "/view/wallview.jsp";
-        } else if (serv_path.equals("/logout.do")) {
-            session.invalidate();
-            return "/goodbye.html";
-        } else if (serv_path.equals("/delete.do")) {
-             UserAccess userAccess = (UserAccess) session.getAttribute("useraccess");
-             String username = userAccess.getUser();
-                
-             int index = Integer.parseInt(request.getParameter("index"));
+            String password = request.getParameter("password");
 
-             boolean success = userAccess.delete(index);
-             if (!success) {
-                request.setAttribute("errorMessage", "Failed to delete the message. You might not have permission or the index is invalid.");
-            }
-            return  "/view/wallview.jsp";
-        } else if (serv_path.equals("/edit.do")) {
-            
-            UserAccess userAccess = (UserAccess) session.getAttribute("useraccess");
-            int index = Integer.parseInt(request.getParameter("index"));
+            // Authenticate user
+            UserAccess userAccess = remoteLogin.connect(username, password);
+
             if (userAccess != null) {
-                Message messageToEdit = userAccess.getAllMessages().get(index);
-                request.setAttribute("message", messageToEdit);
-                request.setAttribute("index", index);
-                System.out.println("Edit");
-                 return "/view/editMessage.jsp";
+                session.setAttribute("useraccess", userAccess);
+                return "/wallview";  // Redirect to the message wall view
+            } else {
+                // If login fails, redirect back to login with an error message
+                request.setAttribute("errorMessage", "Invalid username or password.");
+                return "/login.html";
             }
-            return  "/view/wallview.jsp";
-        } else if (serv_path.equals("/updateMessage.do")) {
 
-            int index = Integer.parseInt(request.getParameter("index"));
-            String newContent = request.getParameter("content");
+        // Handle posting a new message
+        } else if (serv_path.equals("/put.do")) {
             UserAccess userAccess = (UserAccess) session.getAttribute("useraccess");
 
-            if (userAccess != null && newContent != null && !newContent.trim().isEmpty()) {
-                userAccess.getAllMessages().get(index).setContent(newContent);
-               
-                    }
-                    return  "/view/wallview.jsp";
+            if (userAccess != null) {
+                String message = request.getParameter("msg");
 
+                if (message != null && !message.trim().isEmpty()) {
+                    userAccess.put(message);  // Post message
+                }
+                return "/wallview";  // Redirect to the message wall view
+            } else {
+                return "/error-no-user_access.html"; // Redirect if user session is not found
+            }
+
+        // Handle refreshing the message wall
+        } else if (serv_path.equals("/refresh.do")) {
+            return "/wallview"; // Simply refresh the view
+
+        // Handle logout
+        } else if (serv_path.equals("/logout.do")) {
+            session.invalidate();  // Invalidate the session to log out
+            return "/goodbye.html"; // Redirect to goodbye page
+
+        // Handle deleting a message
+        } else if (serv_path.equals("/delete.do")) {
+            UserAccess userAccess = (UserAccess) session.getAttribute("useraccess");
+
+            if (userAccess != null) {
+                String indexParam = request.getParameter("index");
+                try {
+                    int index = Integer.parseInt(indexParam);  // Parse message index to delete
+                    userAccess.delete(index);  // Attempt to delete the message
+                } catch (NumberFormatException e) {
+                    request.setAttribute("errorMessage", "Invalid message index.");
+                }
+                return "/wallview"; // Redirect to the message wall view
+            } else {
+                return "/error-no-user_access.html"; // Redirect if user session is not found
+            }
+
+        // Default action for unrecognized paths
         } else {
-            return  "/view/wallview.jsp";
+            return "/wallview";
         }
     }
 
+    // Retrieve RemoteLogin instance from the servlet context
     public RemoteLogin getRemoteLogin() {
         return (RemoteLogin) getServletContext().getAttribute("remoteLogin");
     }
 
+    // Forward request to the specified view
     public void forwardRequest(HttpServletRequest request, HttpServletResponse response, String view)
             throws ServletException, IOException {
-        System.out.print(view);
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(view);
         if (dispatcher == null) {
             throw new ServletException("No dispatcher for view path '" + view + "'");

@@ -1,7 +1,6 @@
 <%@ page import="demo.spec.Message"%>
 <%@ page import="demo.spec.UserAccess"%>
 <%@ page import="java.util.List" %>
-<%@ page import="javax.servlet.http.HttpSession" %>
 
 <head>
     <meta http-equiv="Expires" CONTENT="0">
@@ -12,10 +11,7 @@
 </head>
 
 <%
-    HttpSession sessio = request.getSession();
-    UserAccess userAccess = (UserAccess) sessio.getAttribute("useraccess");
-    String currentUser =  userAccess.getUser();
-    List<Message> messages =  userAccess.getAllMessages() ;   
+    
 
 %>
 
@@ -30,10 +26,10 @@
 
 <body>
     
-    <h3>user: <em><%= currentUser%></em>
+    <h3>user: <em><%=%></em>
         <a href=logout.do>[Close session]</a></h3>
 
-    <h2> <%=messages.size()%> Messages shown:</h2>
+    <h2> <%=%> Messages shown:</h2>
 
     <table width="50%" border="1" bordercolordark="#000000" bordercolorlight="#FFFFFF" cellpadding="3" cellspacing="0">
 
@@ -50,52 +46,36 @@
         </td>
 
         <%
-             if (messages != null && !messages.isEmpty()) {
-                for (int i = 0; i < messages.size(); i++) {
-                    Message msg = messages.get(i);
-                    if (!"no content".equals(msg.getOwner())) {
+
+            
 
         %>
 
         <tr> <font size="2" face="Verdana">
 
         <td width="14%" valign="center" align="middle">
-            <%=  msg.getContent() %>
+            <%=%>
         </td>
 
         <td width="14%" valign="center" align="middle">
-            <%= msg.getOwner() %>
+            <%=%>
         </td>
 
         <td width="14%" valign="center" align="middle">
-            
             <form action="delete.do" method="post">
-                <input type="hidden" name="index" value="<%= i %>">
-                <input type="submit" name="delete" value="delete">
+                <input type="hidden"
+                       name="index"
+                       value="<%=%>">
+                <input type="submit"
+                       name="delete"
+                       value="delete">
             </form>
-            <% if (msg.getOwner().equals(currentUser)) { %>
-                <form action="edit.do" method="post">
-                    <input type="hidden" name="index" value="<%= i %>">
-                    <input type="submit" name="edit" value="modify">
-                </form>
-            <% } %>
         </td>
 
         </font> 
     </tr>
 
-    <%  
-                 }
-                }
-            } else { 
-            
-        %>
-        <tr>
-                    <td colspan="3" valign="center" align="middle">No messages available.</td>
-                </tr>
-        <%
-            }
-        %>
+    <% %>
 
 </table>
 
